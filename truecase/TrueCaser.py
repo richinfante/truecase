@@ -22,7 +22,7 @@ def to_title_case(string, dictionary=None):
 
 
 class TrueCaser(object):
-    def __init__(self, dist_file_path=None):
+    def __init__(self, dist_file_path=None, tokenizer=None):
         """ Initialize module with default data/english.dist file """
         if dist_file_path is None:
             dist_file_path = os.path.join(
@@ -36,7 +36,12 @@ class TrueCaser(object):
             self.forward_bi_dist = pickle_dict["forward_bi_dist"]
             self.trigram_dist = pickle_dict["trigram_dist"]
             self.word_casing_lookup = pickle_dict["word_casing_lookup"]
-        self.tknzr = TweetTokenizer()
+
+        # Allow alternate tokenization schemes
+        if tokenizer is None:
+            self.tknzr = TweetTokenizer()
+        else:
+            self.tknzr = tokenizer
 
     def get_score(self, prev_token, possible_token, next_token):
         pseudo_count = 5.0
@@ -101,16 +106,10 @@ class TrueCaser(object):
 
         return result
 
-    def get_true_case(self, sentence, out_of_vocabulary_token_option="title", formatted_dict=None):
-        """ Returns the true case for the passed tokens.
-
-        @param tokens: Tokens in a single sentence
-        @param outOfVocabulariyTokenOption:
-            title: Returns out of vocabulary (OOV) tokens in 'title' format
-            lower: Returns OOV tokens in lower case
-            as-is: Returns OOV tokens as is
-        """
-        tokens = self.tknzr.tokenize(sentence)
+    """
+        True case an array of words
+    """
+    def get_true_case_array(self, tokens, out_of_vocabulary_token_option="title", formatted_dict=None):
 
         tokens_true_case = []
         for token_idx, token in enumerate(tokens):
@@ -152,6 +151,24 @@ class TrueCaser(object):
                         tokens_true_case.append(token.lower())
                     else:
                         tokens_true_case.append(token)
+        return tokens_true_case
+
+    def get_true_case(self, sentence, out_of_vocabulary_token_option="title", formatted_dict=None):
+        """ Returns the true case for the passed tokens.
+
+        @param tokens: Tokens in a single sentence
+        @param outOfVocabulariyTokenOption:
+            title: Returns out of vocabulary (OOV) tokens in 'title' format
+            lower: Returns OOV tokens in lower case
+            as-is: Returns OOV tokens as is
+        """
+        tokens = self.tknzr.tokenize(sentence)
+
+        tokens_true_case = self.get_true_case_array(
+            tokens,
+            out_of_vocabulary_token_option=out_of_vocabulary_token_option,
+            formatted_dict=formatted_dict
+        )
 
         return "".join([
             " " +
