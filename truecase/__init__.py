@@ -10,7 +10,9 @@ def get_truecaser():
     return TrueCaser()
 
 
-def get_true_case(sentence, out_of_vocabulary_token_option="title"):
+def get_true_case(sentence, out_of_vocabulary_token_option="title", formatted_dict=None):
     return get_truecaser().get_true_case(
         sentence,
-        out_of_vocabulary_token_option=out_of_vocabulary_token_option)
+        out_of_vocabulary_token_option=out_of_vocabulary_token_option,
+        formatted_dict=formatted_dict
+    )

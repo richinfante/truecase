@@ -6,6 +6,20 @@ import string
 import nltk
 from nltk.tokenize import TweetTokenizer
 
+"""
+Perform a title case, with catches for some edge cases python's .title() doesn't use.
+"""
+def to_title_case(string, dictionary=None):
+    # Allow passing in of a dictionary of pre-formatted words
+    if dictionary and string in dictionary:
+        return dictionary[string]
+
+    # proper formatting for posessive nouns
+    if string.endswith("'s"):
+        return "%s's" % string[0:-2].title()
+    
+    return string.title()
+
 
 class TrueCaser(object):
     def __init__(self, dist_file_path=None):
@@ -87,7 +101,7 @@ class TrueCaser(object):
 
         return result
 
-    def get_true_case(self, sentence, out_of_vocabulary_token_option="title"):
+    def get_true_case(self, sentence, out_of_vocabulary_token_option="title", formatted_dict=None):
         """ Returns the true case for the passed tokens.
 
         @param tokens: Tokens in a single sentence
@@ -129,11 +143,11 @@ class TrueCaser(object):
                         tokens_true_case.append(best_token)
 
                     if token_idx == 0:
-                        tokens_true_case[0] = tokens_true_case[0].title()
+                        tokens_true_case[0] = to_title_case(tokens_true_case[0], formatted_dict)
 
                 else:  # Token out of vocabulary
                     if out_of_vocabulary_token_option == "title":
-                        tokens_true_case.append(token.title())
+                        tokens_true_case.append(to_title_case(token, formatted_dict))
                     elif out_of_vocabulary_token_option == "lower":
                         tokens_true_case.append(token.lower())
                     else:
