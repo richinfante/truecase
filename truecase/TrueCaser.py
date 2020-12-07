@@ -14,10 +14,15 @@ def to_title_case(string, dictionary=None):
     if dictionary and string in dictionary:
         return dictionary[string]
 
-    # proper formatting for posessive nouns
-    if string.endswith("'s"):
-        return "%s's" % string[0:-2].title()
+    # if 2nd to last char is apostrophe,don't capitalize it
+    if len(string) > 2 and string[-2] == "'":
+        return "%s'%s" % (string[0:-2].title(), string[-1])
+
+    # if 3nd & 2nd to last char is apostrophe, don't capitalize it
+    if len(string) > 3 and string[-3] == "'":
+        return "%s'%s" % (string[0:-3].title(), string[-2:])
     
+    # otherwise, just .title() it
     return string.title()
 
 
